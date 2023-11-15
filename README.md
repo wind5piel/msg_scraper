@@ -29,3 +29,4 @@ After modifying the URL, run the msg_scraper.py file to scrape plants from the s
 
 The script will save the scraped data into a file called 'plants.json' in the same folder.
 It is in the JSON format and can easily be loaded into a pandas DataFrame using pd.read_json() method.
+
