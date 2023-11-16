@@ -15,7 +15,7 @@ def get_plant_links(page_no):
         list: A list of strings containing the links to the plant pages.
     """
 
-    url = f'https://www.mein-schoener-garten.de/pflanzen?page={page_no-1}'
+    url = f'https://www.mein-schoener-garten.de/pflanzen/pflanzen?page={page_no-1}'
     links = []
     r = s.get(url)
 
@@ -46,8 +46,8 @@ def parse_plants(url):
     # find the wrapper for the plant facts table
     plant_facts_raw = r.html.find('div.plant-facts__item--wrapper')
 
-    # initialize the plant's dictionary with the name
-    plant_facts = {'Name': name}
+    # initialize the plant's dictionary with the name and url
+    plant_facts = {'Name': name, 'URL': url}
 
     # parse the plant facts and store them in the dictionary
     for fact in plant_facts_raw:
@@ -67,16 +67,20 @@ dicts = []
 urls = get_plant_links(page)
 
 # continue until no more plant links are retrieved (aka. page number out of scope)
-while urls:
-    print(f'Parsing page {page}')
-    new_dicts = [parse_plants(u) for u in urls]
-    dicts = dicts + new_dicts
-
-    page += 1
+while True:
+    #print(f'Parsing page {page}')
     urls = get_plant_links(page)
-    print(f'{len(dicts)} plants collected so far')
+    if not urls:
+        break
+
+    new_dicts = [parse_plants(u) for u in urls]
+    dicts.extend(new_dicts)
+
+    print(f'Finished parsing page {page} - {len(dicts)} plants collected so far')
+    page += 1
+    #print(f'{len(dicts)} plants collected so far')
 
 #save the data to a json file for further processing
 with open('plants.json', 'w') as outfile:
     json.dump(dicts, outfile)
-print(f'No more pages to parse. {len(dicts)} plants collected and saved to plants.json.')
+print(f'Page {page-1} was the last that contained plants. Data on a total of {len(dicts)} plants was collected and saved to plants.json.')
